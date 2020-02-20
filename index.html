@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<link rel="stylesheet" href="js/ol/ol.css" type="text/css">
+	<style>
+		#map {
+			height: 850px;
+			width: 100%;
+		}
+	</style>
+	<script src="js/ol/ol.js"></script>
+	<title>OpenLayers example</title>
+</head>
+
+<body>
+	<div id="map" class="map"></div>
+	<script type="text/javascript">
+		var map = new ol.Map({
+			target: 'map',
+			layers: [
+				new ol.layer.Tile({	//有一个Source，必然需要一个Layer，然后把Layer添加到Map上，就可以显示出来了。
+					source: new ol.source.OSM()
+				})
+			],
+			view: new ol.View({
+				center: ol.proj.fromLonLat([103.73, 36.03]),
+				zoom: 8,
+				minZoom: 5,
+				maxZoom: 12
+			})
+		});
+		map.on('click', function (e) {
+			var coor = e.coordinate
+			var lonlat = ol.proj.transform(coor, 'EPSG:3857', "EPSG:4326")
+			console.log("lon:" + lonlat[0].toFixed(2) + ",lat:" + lonlat[1].toFixed(2));
+		})
+
+	</script>
+</body>
+
+</html>

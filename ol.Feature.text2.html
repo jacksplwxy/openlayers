@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>使用ol.Feature类实现街道标注</title>
+    <link rel="stylesheet" href="js/ol/ol.css" />
+    <script src="js/ol/ol.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        // 街道标注的样式
+        const style = new ol.style.Style({
+            text: new ol.style.Text({
+                font: 'bold 11px "Open Sans", "Arial Unicode MS", "sans-serif"',
+                placement: 'line',
+                fill: new ol.style.Fill({
+                    color: 'white'
+                })
+            })
+        });
+
+        const map = new ol.Map({
+            target: 'map',
+            layers: [
+                // 使用必应影像地图作为底图
+                new ol.layer.Tile({
+                    source: new ol.source.BingMaps({
+                        key: 'AmMSiUpOokUvbXi9sfQbdzPJQqpZ-9ZTMPJ-0uhNsB8cF3H4RMVSSuh4CTTeh2yG',
+                        imagerySet: 'Aerial'
+                    })
+                }),
+                // 加载维也纳部分街道数据
+                new ol.layer.Vector({
+                    // declutter: true,
+                    source: new ol.source.Vector({
+                        format: new ol.format.GeoJSON(),
+                        url: 'vienna-streets.geojson'
+                    }),
+                    style: function(feature){       // 遍历每个要素并为其设置标注
+                        style.getText().setText(feature.get('name'));
+                        return style;
+                    }
+                })
+            ],
+            view: new ol.View({
+                extent: [1817379, 6139595, 1827851, 6143616],   // 视图范围
+                center: ol.extent.getCenter([1817379, 6139595, 1827851, 6143616]),
+                zoom: 17,
+                minZoom: 14
+            })
+        });
+    </script>
+</body>
+</html>

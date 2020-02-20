@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="js/ol/ol.css" type="text/css">
+    <style>
+        #map {
+            height: 850px;
+            width: 100%;
+        }
+
+        #map .ol-zoom .ol-zoom-out {
+            margin-top: 204px;
+        }
+
+        #map .ol-zoomslider {
+            background-color: transparent;
+            top: 2.3em;
+        }
+
+        #map .ol-zoom-extent {
+            top: 280px;
+        }
+    </style>
+    <script src="js/ol/ol.js"></script>
+    <title>OpenLayers example</title>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script>
+        let map = new ol.Map({
+            target: 'map',                          // 关联到对应的div容器
+            layers: [
+                new ol.layer.Tile({                 // 瓦片图层
+                    source: new ol.source.OSM()     // OpenStreetMap数据源
+                })
+            ],
+            view: new ol.View({                     // 地图视图
+                projection: 'EPSG:3857',
+                center: [0, 0],
+                zoom: 0
+            }),
+            // 新增代码
+            controls: ol.control.defaults().extend([    // 往地图增加滑块缩放控件
+                new ol.control.ZoomSlider(),
+                // 新增代码
+                new ol.control.ZoomToExtent({           // 缩放至特定位置控件      
+                    extent: [
+                        12667718, 2562800,
+                        12718359, 2597725
+                    ]
+                }),
+                new ol.control.FullScreen(),
+                new ol.control.MousePosition(),
+                new ol.control.OverviewMap({        // 实例化一个OverviewMap类的对象，并加入到地图中
+                    collapsed: false
+                }),
+                new ol.control.ScaleLine()
+            ])
+        });
+    </script>
+</body>
+
+</html>

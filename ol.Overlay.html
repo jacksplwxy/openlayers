@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Overlay</title>
+    <link rel="stylesheet" href="js/ol/ol.css" />
+    <script src="js/ol/ol.js"></script>
+    <style>
+        #marker {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #088;
+            border-radius: 10px;
+            background-color: #0FF;
+            opacity: 0.5;
+        }
+        #vienna {
+            text-decoration: none;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            text-shadow: black 0.1em 0.1em 0.2em;
+        }
+        #popup {
+            background-color: #088;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div style="display:none;">
+        <!-- 关于维也纳信息的点击标签 -->
+        <a class="overlay" id="vienna" target="_blank" href="http://en.wikipedia.org/wiki/Vienna">Vienna</a>
+        <div id="marker" title="Marker"></div>
+        <!-- 弹窗 -->
+        <div id="popup"></div>
+    </div>
+
+    <script>
+        const map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: [0, 0],
+                zoom: 2
+            })
+        });
+
+        // 维也纳坐标
+        const viennaPos = ol.proj.fromLonLat([16.3725, 48.208889]);
+
+        // 用于充当维也纳标注的叠置层
+        const marker = new ol.Overlay({
+            position: viennaPos,
+            positioning: 'center-center',
+            element: document.getElementById('marker'),
+            stopEvent: false
+        })
+        map.addOverlay(marker);     // 将叠置层添加到地图
+
+
+        // 用于充当维也纳超链接标签的叠置层
+        const vienna = new ol.Overlay({
+            element: document.getElementById('vienna'),
+            position: viennaPos
+        });
+        map.addOverlay(vienna);
+
+
+        // 用户点击地图就会弹出来的窗口（弹窗）
+        const popup = new ol.Overlay({
+            element: document.getElementById('popup')
+        });
+        map.addOverlay(popup);
+
+        // 为地图绑定click事件，使用户点击地图就能在对应处弹窗
+        map.on('click', function(event){
+            let element = popup.getElement();       // 获取充当弹窗的DOM元素
+            let coordinate = event.coordinate;      // 获取鼠标点击处的坐标
+            // 将地理坐标格式化为半球、度、分和秒的形式
+            let hdms = ol.coordinate.toStringHDMS(ol.proj.toLonLat(coordinate));
+            popup.setPosition(coordinate);          // 将弹窗位置设置为鼠标点击处
+            element.innerHTML = '<p>The location you clicked was:</p><code>' + hdms + '</code>';
+        });
+    </script>
+</body>
+</html>

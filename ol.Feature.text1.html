@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>使用ol.Feature类实现文字标注</title>
+    <link rel="stylesheet" href="js/ol/ol.css" />
+    <script src="js/ol/ol.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        // 标注样式
+        const labelStyle = new ol.style.Style({
+            text: new ol.style.Text({
+                font: 'bold 20px serif',
+                text: '北京',
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 0, 0, 1)'
+                })
+            })
+        });
+
+        const vectorSource = new ol.source.Vector();
+        const vectorLayer = new ol.layer.Vector({
+            source: vectorSource
+        });
+
+        // 用于充当标注的要素
+        let labelFeature = new ol.Feature({
+            geometry: new ol.geom.Point([12956325,4851028])
+        });
+        // 设置标注的样式
+        labelFeature.setStyle(labelStyle);
+        // 将标注要素添加到矢量图层中
+        vectorSource.addFeature(labelFeature);
+
+        const map = new ol.Map({
+            target: 'map',                          // 关联到对应的div容器
+            layers: [
+                new ol.layer.Tile({                 // 瓦片图层
+                    source: new ol.source.Stamen({
+                        layer: 'terrain'
+                    })     
+                }),
+                vectorLayer
+            ],
+            view: new ol.View({                     // 地图视图
+                projection: 'EPSG:3857',
+                center: [0, 0],
+                zoom: 0
+            })
+        });
+    </script>
+</body>
+</html>

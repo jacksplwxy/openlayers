@@ -1,0 +1,204 @@
+﻿*地理信息系统的坐标系统:
+·WGS-84：GPS坐标系，是国际标准，GPS坐标（Google Earth使用、或者GPS模块）
+·GCJ-02：火星坐标系，国测局02年发布的坐标体系，中国坐标偏移标准，Google Map、高德、腾讯使用
+·BD-09：百度坐标系，百度自研，百度地图使用。
+
+*EPSG
+·EPSG:4326 (WGS84)：WGS84 是目前最流行的地理坐标系统。在国际上，每个坐标系统都会被分配一个 EPSG 代码，EPSG:4326 就是 WGS84 的代码。GPS是基于WGS84的，所以通常我们得到的坐标数据都是WGS84的。一般我们在存储数据时，仍然按WGS84存储。
+·EPSG:3857 (Pseudo-Mercator)：伪墨卡托投影，也被称为球体墨卡托，Web Mercator。它是基于墨卡托投影的，把 WGS84坐标系投影到正方形。我们前面已经知道 WGS84 是基于椭球体的，但是伪墨卡托投影把坐标投影到球体上，这导致两极的失真变大，但是却更容易计算。这也许是为什么被称为”伪“墨卡托吧。另外，伪墨卡托投影还切掉了南北85.051129°纬度以上的地区，以保证整个投影是正方形的。因为墨卡托投影等正形性的特点，在不同层级的图层上物体的形状保持不变，一个正方形可以不断被划分为更多更小的正方形以显示更清晰的细节。很明显，伪墨卡托坐标系是非常显示数据，但是不适合存储数据的，通常我们使用WGS84 存储数据，使用伪墨卡托显示数据。Web Mercator 最早是由 Google 提出的，当前已经成为 Web Map 的事实标准。但是也许是由于上面”伪“的原因，最初 Web Mercator 被拒绝分配EPSG 代码。于是大家普遍使用 EPSG:900913（Google的数字变形） 的非官方代码来代表它。直到2008年，才被分配了EPSG:3785的代码，但在同一年没多久，又被弃用，重新分配了 EPSG:3857 的正式代码，使用至今。
+
+*Openlayers的DOM结构
+  OpenLayers会在我们自定义的div元素中创建一个ol-viewport的类，地图中的所有内容都放置在ol-viewport中呈现。在ol-viewport容器中分别创建了如下3个元素层，分别渲染呈现地图容器中的内容：
+·地图渲染层（class="ol-unselectable"）—— 这是一个canvas元素，地图基于canvas 2D方式渲染
+·内容叠加层（class="ol-overlaycontainer"）—— 用于放置叠置层（ol.Overlay）内容，如在地图上添加弹窗、图片等等
+·地图控件层（class="ol-overlaycontainer-stopevent"） —— 用于放置控件，默认情况下会放置ol.control.Zoom（用于控制地图放大、缩小）、ol.control.Rotate（用于控制地图旋转）、ol.control.Attribution（用于控制地图右下角标记）这三个控件。
+
+*Map：
+·子类：
+  ~target
+  ~view
+  ~layers
+  ~interaction
+  ~controls
+  ~overlay
+  ~event
+·demo：
+  var map = new ol.Map({
+    target: 'map',
+    layers: [
+      new ol.layer.Tile({}),
+      new ol.layer.Vector({})
+    ],
+    view: new ol.View({})
+  });
+·获取view：
+  var view=map.getView()
+·获取全部叠置层：
+  map.getOverlays()
+·添加图层：
+  map.addLayer(layer);
+·移除图层：
+  map.removeLayer((layer)
+·添加交互：
+  map.addInteraction(interaction)
+·移除交互：
+  map.removeInteraction(interaction)
+·添加事件：
+  map.on("click", function (evt) { });
+·移除事件：
+  map.un("click", function (evt) { });
+·添加叠置层：
+  map.addOverlay(overlay)
+·移除叠置层：
+  map.removeOverlay(overlay)
+
+*View
+·设置中心点：
+  view.setCenter([x,y])
+·获取层级：
+  view.getZoom()
+·设置层级：
+  view.setZoom(5)
+·获取projection
+  view.getProjection()
+
+*Layer：
+·地图数据根据数据源（Source）可分为Image、Tile、Vector三大类型的数据源类，对应设置到地图图层（Layer）的Image、Tile、Vector三大类的图层中。其中，矢量图层Vector通过样式（Style）来设置矢量要素渲染的方式和外观。
+·创建图层：
+  var layer = new ol.layer.Vector({
+    source: new ol.source.Vector()
+  });
+·设置值：
+  layer.set("layername", "points");
+·添加feature
+  layer.getSource().addFeature(feature);
+·设置要在地图上其他图层之上呈现的图层：
+  layer.setMap(map)
+·设置图层的显示与隐藏：
+  layer.setVisible(false)
+
+
+*interaction（交互）：
+·交互需要指定source参数来指定可以对哪些地图源进行交互，例如产生图形、图形编辑、数据捕获等
+·创建绘图交互：
+  var draw = new ol.interaction.Draw({
+        source: vectorSource,
+        type: type,
+        geometryFunction: geometryFunction
+  });
+·创建移动交互：
+  var modify = new ol.interaction.Modify({
+    source: vectorSource
+  });
+·文档：https://blog.csdn.net/weitaming1/article/details/87805287
+
+
+*controls
+·控件示例：
+  var controls=ol.control.defaults().extend([    
+    new ol.control.ZoomSlider(),
+    new ol.control.ZoomToExtent({  
+       extent: [12667718, 2562800,12718359, 2597725]
+    }),
+    new ol.control.FullScreen(),
+    new ol.control.MousePosition(),
+    new ol.control.OverviewMap({        // 实例化一个OverviewMap类的对象，并加入到地图中
+      collapsed: false
+    }),
+    new ol.control.ScaleLine()
+  ])
+
+
+*Overlay（叠置层）:
+·feature为vector图层的数据源提供数据，而叠置层的原理是将DOM元素动态地移动并覆盖到地图中的指定位置，它不属于图层
+·创建叠置层：
+   var overlay = new ol.Overlay({
+      position: viennaPos,
+      positioning: 'center-center',
+      element: document.getElementById('marker'),
+      stopEvent: false
+   })
+·设置位置：
+  overlay.setPosition(coordinate)
+·清空叠置层：
+  map.getOverlays().clear()
+
+
+*source：
+·为layer的子类、interaction的子类提供数据源
+·数据源：
+  ~Tile类为瓦片抽象基类，其子类作为各类瓦片数据的数据源。
+  ~Vector类为矢量数据源基类，为矢量图层提供具体的数据来源，包括直接组织或读取的矢量数据（Features）、远程数据源的矢量数据（即通过url设置数据源路径）等。若是url设置的矢量数据源，则通过解析器Format（即ol.format.Feature的子类）来解析各类矢量数据，如XML、Text、JSON、GML、KML、GPS、WFS、WKT、GeoJSON等地图数据。
+  ~Image类为单一图像基类，其子类为画布（canvas）元素、服务器图片、单个静态图片、WMS单一图像等的数据源。它与Tile类的区别在于，Image类对应的是一整张大图片，而不像瓦片那样很多张小图片，从而无需切片，也可以加载一些地图，适用于一些小场景地图。
+·清除数据：
+  source.clear()
+·Cluster：聚合，在地图上查询结果通常以标记点的形式展现，但是如果标记点较多，不仅会大大增加客户端的渲染时间，让客户端变得很卡，而且会让人产生密集恐惧症，为了解决这一问题，我们需要一种手段能在用户有限的可视区域范围内，利用最小的区域展示出最全面的信息，而又不产生重叠覆盖。
+
+
+*Event：
+·openlayers中实现注册和解除监听函数功能的类是 ol.Observable，因此任何继承于 ol.Observable 的类的对象实例都具有注册或者解除注册监听器的能力，并且可以分发事件。
+·ol.Observable的方法：
+  ~changed()，增加事件对象的版本号（每次事件对象变化，都会增加版本号），并分发 change 事件；
+  ~dispatchEvent(event)，分发事件，并调用所有的监听该类型事件的监听器；
+  ~getRevision()，获取事件对象的版本号；
+  ~on(type, listener, opt_this)，监听 type 类型的事件，若事件触发，则调用 listener 函数；
+  ~once(type, listener, opt_this)，监听 type 类型的事件（仅一次），若事件触发，则调用 listener 函数，并移除该监听器；
+  ~un(type, listener, opt_this)，移除监听 type 类型的监听函数 listener；
+  ~unByKey(key)，移除对应 key 的监听器，key 一般是由 on() 或者 once() 返回的。
+·常见事件type：
+·propertychange：当属性更改时触发
+·contextmenu：鼠标右键事件名
+
+
+*Feature：
+·创建：
+  var feature = new ol.Feature(new ol.geom.Point([lon, lat]))
+·设置样式：
+  var style = new ol.style.Style({
+    image: new ol.style.Icon(({
+      anchorXUnits: 'fraction',
+      anchorYUnits: 'pixels',
+      src: '../image/hdCameraPoint.png'
+    }))
+  });
+  feature.setStyle([style]);
+·将feature添加到矢量图层中的数据源中
+  vectorSource.addFeature(feature);
+·设置值：
+  feature.setProperties({})
+  feature.set("sign", "车辆布控");
+  feature.set("camera", camera);
+·获取值：
+  feature.getProperties({})
+  feature.get("sign");
+·geometry:Vector类采用Geometry类来存储一个要素的几何信息
+
+
+*实践：
+·动画实现的3种方式：
+  ~在div中使用CSS3动画，以overlay的形式添加
+  ~使用openlayers3自带的postcompose事件。这个事件在地图渲染时都会触发，而我们只要改变地图上的某个feature或者layer或者其他任何东西，就会触发重新渲染。因此我们在postcompose中改变feature的样式，改变样式后重新触发postcompose事件，一只循环下去，形成动画效果。
+  ~使用js的requestAnimationFrame。requestAnimationFrame的方式与其他的js中方法相比的优势如下：1.经过浏览器优化，动画更流畅2.窗口没激活时，动画将停止，省计算资源3.更省电，尤其是对移动终端。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

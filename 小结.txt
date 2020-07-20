@@ -1,11 +1,24 @@
-﻿*地理信息系统的坐标系统:
+﻿*文档：
+·《OpenLayers汇总目录·不睡觉的怪叔叔》：https://blog.csdn.net/qq_35732147/article/details/81667929
+·《瓦片地图原理》：https://segmentfault.com/a/1190000011276788#articleHeader1
+·《openlayers基础系列》：https://blog.csdn.net/xtfge0915/article/details/82763727
+·《openlayers基础系列·知乎》：https://zhuanlan.zhihu.com/c_1098918318844612608
+
+* 概念：
+·GIS：地理信息系统（Geographic Information System或 Geo－Information system，GIS）有时又称为“地学信息系统”。它是一种特定的十分重要的空间信息系统。它是在计算机硬、软件系统支持下，对整个或部分地球表层（包括大气层）空间中的有关地理分布数据进行采集、储存、管理、运算、分析、显示和描述的技术系统。
+·WebGIS：网络地理信息系统。是指工作在Web网上的GIS,是传统的GIS在网络上的延伸和发展，具有传统GIS的特点，可以实现空间数据的检索、查询、制图输出、编辑等GIS基本功能，同时也是Internet 上地理信息发布、共享和交流协作的基础。
+·GeoJSON：是一种对各种地理数据结构进行编码的格式，基于Javascript对象表示法的地理空间信息数据交换格式。GeoJSON对象可以表示几何、特征或者特征集合。GeoJSON支持下面几何类型：点、线、面、多点、多线、多面和几何集合。GeoJSON里的特征包含一个几何对象和其他属性，特征集合表示一系列特征。
+
+*GIS地理信息系统的坐标系统:
 ·WGS-84：GPS坐标系，是国际标准，GPS坐标（Google Earth使用、或者GPS模块）
 ·GCJ-02：火星坐标系，国测局02年发布的坐标体系，中国坐标偏移标准，Google Map、高德、腾讯使用
 ·BD-09：百度坐标系，百度自研，百度地图使用。
 
-*EPSG
-·EPSG:4326 (WGS84)：WGS84 是目前最流行的地理坐标系统。在国际上，每个坐标系统都会被分配一个 EPSG 代码，EPSG:4326 就是 WGS84 的代码。GPS是基于WGS84的，所以通常我们得到的坐标数据都是WGS84的。一般我们在存储数据时，仍然按WGS84存储。
+*EPSG：
+·GIS中，通常用“EPSG”的代码来表示一种地图投影。
+·EPSG:4326 (WGS84)：在地图上用经纬度当作坐标的X/Y对待，WGS84是目前最流行的地理坐标系统。在国际上，每个坐标系统都会被分配一个 EPSG 代码，EPSG:4326 就是 WGS84 的代码。GPS是基于WGS84的，所以通常我们得到的坐标数据都是WGS84的。一般我们在存储数据时，仍然按WGS84存储。
 ·EPSG:3857 (Pseudo-Mercator)：伪墨卡托投影，也被称为球体墨卡托，Web Mercator。它是基于墨卡托投影的，把 WGS84坐标系投影到正方形。我们前面已经知道 WGS84 是基于椭球体的，但是伪墨卡托投影把坐标投影到球体上，这导致两极的失真变大，但是却更容易计算。这也许是为什么被称为”伪“墨卡托吧。另外，伪墨卡托投影还切掉了南北85.051129°纬度以上的地区，以保证整个投影是正方形的。因为墨卡托投影等正形性的特点，在不同层级的图层上物体的形状保持不变，一个正方形可以不断被划分为更多更小的正方形以显示更清晰的细节。很明显，伪墨卡托坐标系是非常显示数据，但是不适合存储数据的，通常我们使用WGS84 存储数据，使用伪墨卡托显示数据。Web Mercator 最早是由 Google 提出的，当前已经成为 Web Map 的事实标准。但是也许是由于上面”伪“的原因，最初 Web Mercator 被拒绝分配EPSG 代码。于是大家普遍使用 EPSG:900913（Google的数字变形） 的非官方代码来代表它。直到2008年，才被分配了EPSG:3785的代码，但在同一年没多久，又被弃用，重新分配了 EPSG:3857 的正式代码，使用至今。
+·EPSG:900931：在地图上用单位“米”当作坐标的X/Y对待
 
 *Openlayers的DOM结构
   OpenLayers会在我们自定义的div元素中创建一个ol-viewport的类，地图中的所有内容都放置在ol-viewport中呈现。在ol-viewport容器中分别创建了如下3个元素层，分别渲染呈现地图容器中的内容：
@@ -14,68 +27,76 @@
 ·地图控件层（class="ol-overlaycontainer-stopevent"） —— 用于放置控件，默认情况下会放置ol.control.Zoom（用于控制地图放大、缩小）、ol.control.Rotate（用于控制地图旋转）、ol.control.Attribution（用于控制地图右下角标记）这三个控件。
 
 *Map：
-·子类：
-  ~target
-  ~view
-  ~layers
-  ~interaction
-  ~controls
-  ~overlay
-  ~event
-·demo：
+·Map的属性：
+  ~ target
+  ~ view
+  ~ layers
+  ~ interaction
+  ~ controls
+  ~ overlay
+  ~ event
+·Map的方法：
+  ~ 获取容器：var targets=map.getTarget()
+  ~ 设置容器：map.setTarget()
+  ~ 获取view：var view=map.getView()
+  ~ 设置view：map.setView(view)
+  ~ 获取图层：var layers=map.getLayers();
+  ~ 添加图层：map.addLayer(layer);
+  ~ 移除图层：map.removeLayer((layer)
+  ~ 添加交互：map.addInteraction(interaction)
+  ~ 移除交互：map.removeInteraction(interaction)
+  ~ 获取控件：var controls=map.getControls()
+  ~ 添加控件：map.addControl(new ol.control.FullScreen())
+  ~ 移除控件：map.removeControl(fullControl)
+  ~ 获取叠置层：var overlays=map.getOverlays()
+  ~ 添加叠置层：map.addOverlay(overlay)
+  ~ 移除叠置层：map.removeOverlay(overlay)
+  ~ 添加事件：map.on("click", function (evt) { });
+  ~ 移除事件：map.un("click", function (evt) { });
+  ~ 获取触发事件的坐标：var coordinate=map.getEventCoordinate()
+  ~ 获取触发事的像素位置：var pixel=map.getEventPixel()
+·Map demo：
   var map = new ol.Map({
-    target: 'map',
-    layers: [
-      new ol.layer.Tile({}),
-      new ol.layer.Vector({})
-    ],
-    view: new ol.View({})
+        target: 'map',	//指定了地图要显示在id为map的div中；
+        layers: [
+          new ol.layer.Tile({	//定义了一个图层,数据来源是OpenStreetMap提供的切片数据；
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({	//定义了地图的中心位置，范围和层级。
+          center: ol.proj.fromLonLat([103.73,36.03]),	//是将一个经纬度坐标转换成当前地图投影的坐标；
+          zoom: 8,
+          minZoom:5,
+          maxZoom:12
+      }),
+      controls: ol.control.defaults().extend([    // 往地图增加组件
+                new ol.control.ZoomSlider(),	//滑块组件
+                new ol.control.FullScreen()   	//全屏组件
+      ])
   });
-·获取view：
-  var view=map.getView()
-·获取全部叠置层：
-  map.getOverlays()
-·添加图层：
-  map.addLayer(layer);
-·移除图层：
-  map.removeLayer((layer)
-·添加交互：
-  map.addInteraction(interaction)
-·移除交互：
-  map.removeInteraction(interaction)
-·添加事件：
-  map.on("click", function (evt) { });
-·移除事件：
-  map.un("click", function (evt) { });
-·添加叠置层：
-  map.addOverlay(overlay)
-·移除叠置层：
-  map.removeOverlay(overlay)
+
 
 *View
-·设置中心点：
-  view.setCenter([x,y])
-·获取层级：
-  view.getZoom()
-·设置层级：
-  view.setZoom(5)
-·获取projection
-  view.getProjection()
+·设置中心点：view.setCenter([x,y])
+·获取层级：view.getZoom()
+·设置层级：view.setZoom(5)
+·获取projection：view.getProjection()
 
 *Layer：
+·4种基本的图层类型：
+  ~ Tile
+  ~ Image
+  ~ Vector
+  ~ VectorTile
 ·地图数据根据数据源（Source）可分为Image、Tile、Vector三大类型的数据源类，对应设置到地图图层（Layer）的Image、Tile、Vector三大类的图层中。其中，矢量图层Vector通过样式（Style）来设置矢量要素渲染的方式和外观。
 ·创建图层：
   var layer = new ol.layer.Vector({
     source: new ol.source.Vector()
   });
-·设置值：
-  layer.set("layername", "points");
-·添加feature
-  layer.getSource().addFeature(feature);
-·设置要在地图上其他图层之上呈现的图层：
-  layer.setMap(map)
-·设置图层的显示与隐藏：
-  layer.setVisible(false)
+·设置值：layer.set("layername", "points");
+·添加feature：layer.getSource().addFeature(feature);
+·设置要在地图上其他图层之上呈现的图层：layer.setMap(map)
+·设置图层的显示与隐藏：layer.setVisible(false)
 
 
 *interaction（交互）：
@@ -94,6 +115,16 @@
 
 
 *controls
+·常用控件：
+  ~ 归属控件（Attribution） —— 用于展示地图资源的版权或者归属，它会默认加入到地图中。
+  ~ 全屏控件（FullScreen） —— 控制地图全屏展示
+  ~ 坐标拾取控件（MousePosition） —— 用于在地图上拾取坐标
+  ~ 鹰眼控件（OverviewMap） —— 生成地图的一个概览图
+  ~ 旋转控件（Rotate） —— 用于鼠标拖拽旋转地图，它会默认加入到地图中。
+  ~ 比例尺控件（ScaleLine） —— 用于生成地图比例尺
+  ~ 滑块缩放控件（ZoomSlider） —— 以滑块的形式缩放地图
+  ~ 缩放至特定位置控件（ZoomToExtent） —— 用于将地图视图缩放至特定位置
+  ~ 普通缩放控件（Zoom） —— 普通缩放控件，它会默认加入到地图中。
 ·控件示例：
   var controls=ol.control.defaults().extend([    
     new ol.control.ZoomSlider(),
@@ -107,6 +138,8 @@
     }),
     new ol.control.ScaleLine()
   ])
+·自定义控件：
+  ~ 图层切换控件：https://zhuanlan.zhihu.com/p/71700141
 
 
 *Overlay（叠置层）:
@@ -124,35 +157,65 @@
   map.getOverlays().clear()
 
 
-*source：
-·为layer的子类、interaction的子类提供数据源
-·数据源：
-  ~Tile类为瓦片抽象基类，其子类作为各类瓦片数据的数据源。
-  ~Vector类为矢量数据源基类，为矢量图层提供具体的数据来源，包括直接组织或读取的矢量数据（Features）、远程数据源的矢量数据（即通过url设置数据源路径）等。若是url设置的矢量数据源，则通过解析器Format（即ol.format.Feature的子类）来解析各类矢量数据，如XML、Text、JSON、GML、KML、GPS、WFS、WKT、GeoJSON等地图数据。
-  ~Image类为单一图像基类，其子类为画布（canvas）元素、服务器图片、单个静态图片、WMS单一图像等的数据源。它与Tile类的区别在于，Image类对应的是一整张大图片，而不像瓦片那样很多张小图片，从而无需切片，也可以加载一些地图，适用于一些小场景地图。
-·清除数据：
-  source.clear()
-·Cluster：聚合，在地图上查询结果通常以标记点的形式展现，但是如果标记点较多，不仅会大大增加客户端的渲染时间，让客户端变得很卡，而且会让人产生密集恐惧症，为了解决这一问题，我们需要一种手段能在用户有限的可视区域范围内，利用最小的区域展示出最全面的信息，而又不产生重叠覆盖。
-
 
 *Event：
 ·openlayers中实现注册和解除监听函数功能的类是 ol.Observable，因此任何继承于 ol.Observable 的类的对象实例都具有注册或者解除注册监听器的能力，并且可以分发事件。
 ·ol.Observable的方法：
-  ~changed()，增加事件对象的版本号（每次事件对象变化，都会增加版本号），并分发 change 事件；
-  ~dispatchEvent(event)，分发事件，并调用所有的监听该类型事件的监听器；
-  ~getRevision()，获取事件对象的版本号；
-  ~on(type, listener, opt_this)，监听 type 类型的事件，若事件触发，则调用 listener 函数；
-  ~once(type, listener, opt_this)，监听 type 类型的事件（仅一次），若事件触发，则调用 listener 函数，并移除该监听器；
-  ~un(type, listener, opt_this)，移除监听 type 类型的监听函数 listener；
-  ~unByKey(key)，移除对应 key 的监听器，key 一般是由 on() 或者 once() 返回的。
+  ~ changed()，增加事件对象的版本号（每次事件对象变化，都会增加版本号），并分发 change 事件；
+  ~ dispatchEvent(event)，分发事件，并调用所有的监听该类型事件的监听器；
+  ~ getRevision()，获取事件对象的版本号；
+  ~ on(type, listener, opt_this)，监听 type 类型的事件，若事件触发，则调用 listener 函数；
+  ~ once(type, listener, opt_this)，监听 type 类型的事件（仅一次），若事件触发，则调用 listener 函数，并移除该监听器；
+  ~ un(type, listener, opt_this)，移除监听 type 类型的监听函数 listener；
+  ~ unByKey(key)，移除对应 key 的监听器，key 一般是由 on() 或者 once() 返回的。
 ·常见事件type：
+  ~ click 点击事件，双击将两个触发该事件
+  ~ dblclick 双击事件
+  ~ moveend 地图被移动后触发
+  ~ movestart 地图开始移动时触发
+  ~ postrender 地图被渲染后触发
+  ~ singleclick 单击事件
 ·propertychange：当属性更改时触发
 ·contextmenu：鼠标右键事件名
 
 
+
+*source：
+·为layer的子类、interaction的子类提供数据源
+·数据源：
+  ~ Tile类为瓦片抽象基类，其子类作为各类瓦片数据的数据源。
+  ~ Vector类为矢量数据源基类，为矢量图层提供具体的数据来源，包括直接组织或读取的矢量数据（Features）、远程数据源的矢量数据（即通过url设置数据源路径）等。若是url设置的矢量数据源，则通过解析器Format（即ol.format.Feature的子类）来解析各类矢量数据，如XML、Text、JSON、GML、KML、GPS、WFS、WKT、GeoJSON等地图数据。
+  ~ Image类为单一图像基类，其子类为画布（canvas）元素、服务器图片、单个静态图片、WMS单一图像等的数据源。它与Tile类的区别在于，Image类对应的是一整张大图片，而不像瓦片那样很多张小图片，从而无需切片，也可以加载一些地图，适用于一些小场景地图。
+·清除数据：source.clear()
+·clusterSource：
+  ~ Cluster概念聚合，在地图上查询结果通常以标记点的形式展现，但是如果标记点较多，不仅会大大增加客户端的渲染时间，让客户端变得很卡，而且会让人产生密集恐惧症，为了解决这一问题，我们需要一种手段能在用户有限的可视区域范围内，利用最小的区域展示出最全面的信息，而又不产生重叠覆盖。
+  ~ clusterSource为layer提供数据源
+  ~ demo:
+    var clusterSource=new ol.source.Cluster({
+      distance:35,
+      projection:ol.proj.get('EPSG:4326'),
+      source:new ol.source.Vector({features:new ol.Feature(...)})
+    })
+    layer.setSource(clusterSource)
+·《OpenLayers教程八：多源数据加载之数据组织》：https://zhuanlan.zhihu.com/p/71882117
+
+
+
 *Feature：
+·Feature（要素），即地图上的几何对象，包括点（Point），线（LineString）,多边形（Polygon），圆（Circle），通过ol.interaction.Drew绘制。
+·Feature为vector图层的数据源提供数据
+·Feature类是Vector类用来在地图上展示几何对象，是Vector图层类一个属性。
+·Feature类有3个部分：
+  ~ Geometry对象:Geometry类是feature对象的基本组成部分，Vector类采用Geometry类来存储一个要素的几何信息
+  ~ attributes属性：attributes包含要素相关的数据
+  ~ style属性
+·方法：
+  ~ destroy():销毁要素对象
+  ~ clone：复制要素对象 
+  ~ getVisibilrty():判断指定要素是否显示出来
+  ~ move():将要素对象移动到location，location一般是OpenLayers.LonLat对象
 ·创建：
-  var feature = new ol.Feature(new ol.geom.Point([lon, lat]))
+  var feature = new ol.Feature(new ol.geom.Point([lon, lat]),attributes,style)
 ·设置样式：
   var style = new ol.style.Style({
     image: new ol.style.Icon(({
@@ -171,14 +234,38 @@
 ·获取值：
   feature.getProperties({})
   feature.get("sign");
-·geometry:Vector类采用Geometry类来存储一个要素的几何信息
 
+
+*projection：投影
+·文档：https://blog.csdn.net/hi_kevin/article/details/34449053
+·为source、view提供投影选项
+·投影，地球大家都知道不是正圆形的球体，他是一个不规则的椭圆体，所以如果我们把把展开在桌面上，发现地图都会和实际有出入。所以人们发明了各种各样的方式来缩小失真的程度，这种方式就是投影
+·OpenLayers的默认投影为：
+  ~ ESPG：4326
+  ~ MaxExtent：-180，-90,180,90
+  ~ MaxResolution：1.40625
+·实例化：var projection=new OpenLayers.Projection('EPSG:4326',{})
+·方法：
+  ~ getCode：获取投影code
+  ~ getUnits：获取投影的单位，度or 米，这取决于我们使用的投影
+  ~ addTransform（from,to,method）：坐标系转换
+  ~ transform(point,source,destination)：坐标系转换
+·坐标转换
+  //创建两个投影对象
+  var proj_4326 = new OpenLayers.Projection('EPSG:4326');
+  var proj_900913 = new OpenLayers.Projection('EPSG:900913'); 
+  //再创建一个点
+  var Point_to_transform=new OpenLayers.LonLat(-79,42);
+  //开始转换
+  Point_to_transform.transform(proj_4326,proj_900913);
+  //打印结果
+  console.log(point_to_transform);
 
 *实践：
 ·动画实现的3种方式：
-  ~在div中使用CSS3动画，以overlay的形式添加
-  ~使用openlayers3自带的postcompose事件。这个事件在地图渲染时都会触发，而我们只要改变地图上的某个feature或者layer或者其他任何东西，就会触发重新渲染。因此我们在postcompose中改变feature的样式，改变样式后重新触发postcompose事件，一只循环下去，形成动画效果。
-  ~使用js的requestAnimationFrame。requestAnimationFrame的方式与其他的js中方法相比的优势如下：1.经过浏览器优化，动画更流畅2.窗口没激活时，动画将停止，省计算资源3.更省电，尤其是对移动终端。
+  ~ 在div中使用CSS3动画，以overlay的形式添加
+  ~ 使用openlayers3自带的postcompose事件。这个事件在地图渲染时都会触发，而我们只要改变地图上的某个feature或者layer或者其他任何东西，就会触发重新渲染。因此我们在postcompose中改变feature的样式，改变样式后重新触发postcompose事件，一只循环下去，形成动画效果。
+  ~ 使用js的requestAnimationFrame。requestAnimationFrame的方式与其他的js中方法相比的优势如下：1.经过浏览器优化，动画更流畅2.窗口没激活时，动画将停止，省计算资源3.更省电，尤其是对移动终端。
 
 
 

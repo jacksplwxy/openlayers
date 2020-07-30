@@ -15,10 +15,35 @@
 ·BD-09：百度坐标系，百度自研，百度地图使用。
 
 *EPSG：
-·GIS中，通常用“EPSG”的代码来表示一种地图投影。
-·EPSG:4326 (WGS84)：在地图上用经纬度当作坐标的X/Y对待，WGS84是目前最流行的地理坐标系统。在国际上，每个坐标系统都会被分配一个 EPSG 代码，EPSG:4326 就是 WGS84 的代码。GPS是基于WGS84的，所以通常我们得到的坐标数据都是WGS84的。一般我们在存储数据时，仍然按WGS84存储。
-·EPSG:3857 (Pseudo-Mercator)：伪墨卡托投影，也被称为球体墨卡托，Web Mercator。它是基于墨卡托投影的，把 WGS84坐标系投影到正方形。我们前面已经知道 WGS84 是基于椭球体的，但是伪墨卡托投影把坐标投影到球体上，这导致两极的失真变大，但是却更容易计算。这也许是为什么被称为”伪“墨卡托吧。另外，伪墨卡托投影还切掉了南北85.051129°纬度以上的地区，以保证整个投影是正方形的。因为墨卡托投影等正形性的特点，在不同层级的图层上物体的形状保持不变，一个正方形可以不断被划分为更多更小的正方形以显示更清晰的细节。很明显，伪墨卡托坐标系是非常显示数据，但是不适合存储数据的，通常我们使用WGS84 存储数据，使用伪墨卡托显示数据。Web Mercator 最早是由 Google 提出的，当前已经成为 Web Map 的事实标准。但是也许是由于上面”伪“的原因，最初 Web Mercator 被拒绝分配EPSG 代码。于是大家普遍使用 EPSG:900913（Google的数字变形） 的非官方代码来代表它。直到2008年，才被分配了EPSG:3785的代码，但在同一年没多久，又被弃用，重新分配了 EPSG:3857 的正式代码，使用至今。
+·GIS中，通常用“EPSG”的代码来表示一种地图投影。在国际上，每个坐标系统都会被分配一个EPSG代码，例如EPSG:4326 就是WGS84的代码。
+·EPSG:4326 (WGS84)：一种国际上采用的地心坐标系。坐标原点为地球质心。GPS是基于WGS84的，所以通常我们得到的坐标数据都是WGS84的。一般我们在存储数据时，仍然按WGS84存储。
+·EPSG:3857 (Pseudo-Mercator)：伪墨卡托投影，也被称为球体墨卡托，Web Mercator。它是基于墨卡托投影的，把 WGS84坐标系投影到正方形。我们前面已经知道 WGS84 是基于椭球体的，但是伪墨卡托投影把坐标投影到球体上，这导致两极的失真变大，但是却更容易计算。这也许是为什么被称为”伪“墨卡托吧。另外，伪墨卡托投影还切掉了南北85.051129°纬度以上的地区，以保证整个投影是正方形的。因为墨卡托投影等正形性的特点，在不同层级的图层上物体的形状保持不变，一个正方形可以不断被划分为更多更小的正方形以显示更清晰的细节。很明显，伪墨卡托坐标系是非常显示数据，但是不适合存储数据的，通常我们使用WGS84 存储数据，使用伪墨卡托显示数据。
 ·EPSG:900931：在地图上用单位“米”当作坐标的X/Y对待
+
+
+*projection：投影
+·为source、view提供投影选项
+·投影，地球大家都知道不是正圆形的球体，他是一个不规则的椭圆体，所以如果我们把把展开在桌面上，发现地图都会和实际有出入。所以人们发明了各种各样的方式来缩小失真的程度，这种方式就是投影
+·OpenLayers的默认投影为：
+  ~ ESPG：4326
+  ~ MaxExtent：-180，-90,180,90
+  ~ MaxResolution：1.40625
+·实例化：var projection=new OpenLayers.Projection('EPSG:4326',{})
+·方法：
+  ~ getCode：获取投影code
+  ~ getUnits：获取投影的单位，度or 米，这取决于我们使用的投影
+  ~ addTransform（from,to,method）：坐标系转换
+  ~ transform(point,source,destination)：坐标系转换
+·坐标转换
+  //创建两个投影对象
+  var proj_4326 = new OpenLayers.Projection('EPSG:4326');
+  var proj_900913 = new OpenLayers.Projection('EPSG:900913'); 
+  //再创建一个点
+  var Point_to_transform=new OpenLayers.LonLat(-79,42);
+  //开始转换
+  Point_to_transform.transform(proj_4326,proj_900913);
+  //打印结果
+  console.log(point_to_transform);
 
 *Openlayers的DOM结构
   OpenLayers会在我们自定义的div元素中创建一个ol-viewport的类，地图中的所有内容都放置在ol-viewport中呈现。在ol-viewport容器中分别创建了如下3个元素层，分别渲染呈现地图容器中的内容：
@@ -236,30 +261,6 @@
   feature.get("sign");
 
 
-*projection：投影
-·文档：https://blog.csdn.net/hi_kevin/article/details/34449053
-·为source、view提供投影选项
-·投影，地球大家都知道不是正圆形的球体，他是一个不规则的椭圆体，所以如果我们把把展开在桌面上，发现地图都会和实际有出入。所以人们发明了各种各样的方式来缩小失真的程度，这种方式就是投影
-·OpenLayers的默认投影为：
-  ~ ESPG：4326
-  ~ MaxExtent：-180，-90,180,90
-  ~ MaxResolution：1.40625
-·实例化：var projection=new OpenLayers.Projection('EPSG:4326',{})
-·方法：
-  ~ getCode：获取投影code
-  ~ getUnits：获取投影的单位，度or 米，这取决于我们使用的投影
-  ~ addTransform（from,to,method）：坐标系转换
-  ~ transform(point,source,destination)：坐标系转换
-·坐标转换
-  //创建两个投影对象
-  var proj_4326 = new OpenLayers.Projection('EPSG:4326');
-  var proj_900913 = new OpenLayers.Projection('EPSG:900913'); 
-  //再创建一个点
-  var Point_to_transform=new OpenLayers.LonLat(-79,42);
-  //开始转换
-  Point_to_transform.transform(proj_4326,proj_900913);
-  //打印结果
-  console.log(point_to_transform);
 
 *实践：
 ·动画实现的3种方式：

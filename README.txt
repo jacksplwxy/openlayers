@@ -58,16 +58,16 @@
 ·OpenLayers默认采用的分辨率和Google在线瓦片地图一样，他们都是采用的ESPG:3857
 ·ol获取默认分辨率：map.getView().getResolution()
 ·根据EPSG获取各层级分辨率：
-		var projectionExtent = ol.proj.get("EPSG:3857").getExtent();  //获取EPSG:3857投影的范围
+    var projectionExtent = ol.proj.get("EPSG:3857").getExtent();  //获取EPSG:3857投影的范围
     var tilePixel = 256;  //单张瓦片的像素，通常都为256，也有少部分为512，根据不同的源而定
-		var maxResolution = ol.extent.getWidth(projectionExtent) / tilePixel;  //最大分辨率 = 0层投影范围的宽度 / 单张瓦片的像素
+    var maxResolution = ol.extent.getWidth(projectionExtent) / tilePixel;  //最大分辨率 = 0层投影范围的宽度 / 单张瓦片的像素
     var MaxZoom = 21;  //地图可放大层级数，要求服务端有相应的层级的瓦片、矢量地图包
-		var resolutions = new Array(MaxZoom);  //分辨率数组
-		var matrixIds = new Array(MaxZoom);  //层级数组
-		for (var i = 0; i < MaxZoom; i++) {
-			resolutions[i] = maxResolution / Math.pow(2, i);
-			matrixIds[i] = i;
-		}
+    var resolutions = new Array(MaxZoom);  //分辨率数组
+    var matrixIds = new Array(MaxZoom);  //层级数组
+    for (var i = 0; i < MaxZoom; i++) {
+      resolutions[i] = maxResolution / Math.pow(2, i);
+      matrixIds[i] = i;
+    }
 ·文档：
   -- https://zhuanlan.zhihu.com/p/72316089
   -- http://www.godeyes.cn/html/2011/05/20/google_earth_11460.html
@@ -291,123 +291,123 @@
   -- 支持协议标准的Source：包括ol.source.TileArcGISRest、ol.source.TileWMS、ol.source.WMTS、ol.source.UTFGrid、ol.source.TileJSON。如果要使用它们，首先你得先学习对应的协议，之后必须找到支持这些协议的服务器来提供数据源，这些服务器可以是底图服务提供商提供的，也可以是自己搭建的服务器，关键是得支持这些协议。
   -- ol.source.XYZ：这个需要单独提一下，因为是可以直接使用的，而且现在很多地图服务（在线的，或者自己搭建的服务器）都支持xyz方式的请求。国内在线的地图服务，高德、天地图等，都可以通过这种方式加载，本地离线瓦片地图也可以，用途广泛，且简单易学。
 ·瓦片地图加载实例：
-	if (isGoogleMap) {// 谷歌地图
-		var projectionExtent = ol.proj.get("EPSG:3857").getExtent();
-		var maxResolution = ol.extent.getWidth(projectionExtent) / 256;
+  if (isGoogleMap) {// 谷歌地图
+    var projectionExtent = ol.proj.get("EPSG:3857").getExtent();
+    var maxResolution = ol.extent.getWidth(projectionExtent) / 256;
     var MaxZoom = 21;  
-		var resolutions = new Array(MaxZoom);  
-		var matrixIds = new Array(MaxZoom);  
-		for (var i = 0; i < MaxZoom; i++) {
-			resolutions[i] = maxResolution / Math.pow(2, i);
-			matrixIds[i] = i;
-		}
-		// 创建底图瓦片图层
-		mapWidget.baseLayer = new ol.layer.Tile({
-			useInterimTilesOnError: false,
-			source: new ol.source.XYZ({
-				projection: "EPSG:3857",
-				tileGrid: new ol.tilegrid.WMTS({
-					origin: ol.extent.getTopLeft(projectionExtent),
-					resolutions: resolutions,
-					matrixIds: matrixIds
-				}),
-				tileUrlFunction: function (tileCoord) {
-					var z = tileCoord[0];
-					var x = tileCoord[1];
-					var y = -tileCoord[2] - 1;
-					var url = Vue.prototype.U2VD_URL.MAP_URL + '/static_map_common/' + z + '/' + x + '/' + y + '.png';
-					return url;
-				},
-				tileLoadFunction: function (imageTile, src) {
-					var formData = new FormData();
-					formData.append("imageStr", src);
-					let httpDefault = {
-						method: 'POST',
-						url: U2VD_API.LAWCASE_MAPCROSSDOMAIN,
-						data: formData,
-						responseType: 'blob'
-					}
-					http(httpDefault)
-						.then(res => {
-							imageTile.getImage().src = URL.createObjectURL(res);
-						})
-						.catch(err => { })
-				},
-				wrapX: true,
-			})
-		});
-		mapWidget.baseLayer.set("layername", "baseLayer");
-		var point = LatLonTransform.gcj_encrypt(
-			parseFloat(mapWidget.mapCenterPoint[1]),
-			parseFloat(mapWidget.mapCenterPoint[0]));// 84坐标系转换成火星坐标系
-		var center = ol.proj.transform([point.lon, point.lat], "EPSG:4326",
-			"EPSG:3857");
+    var resolutions = new Array(MaxZoom);  
+    var matrixIds = new Array(MaxZoom);  
+    for (var i = 0; i < MaxZoom; i++) {
+      resolutions[i] = maxResolution / Math.pow(2, i);
+      matrixIds[i] = i;
+    }
+    // 创建底图瓦片图层
+    mapWidget.baseLayer = new ol.layer.Tile({
+      useInterimTilesOnError: false,
+      source: new ol.source.XYZ({
+        projection: "EPSG:3857",
+        tileGrid: new ol.tilegrid.WMTS({
+          origin: ol.extent.getTopLeft(projectionExtent),
+          resolutions: resolutions,
+          matrixIds: matrixIds
+        }),
+        tileUrlFunction: function (tileCoord) {
+          var z = tileCoord[0];
+          var x = tileCoord[1];
+          var y = -tileCoord[2] - 1;
+          var url = Vue.prototype.U2VD_URL.MAP_URL + '/static_map_common/' + z + '/' + x + '/' + y + '.png';
+          return url;
+        },
+        tileLoadFunction: function (imageTile, src) {
+          var formData = new FormData();
+          formData.append("imageStr", src);
+          let httpDefault = {
+            method: 'POST',
+            url: U2VD_API.LAWCASE_MAPCROSSDOMAIN,
+            data: formData,
+            responseType: 'blob'
+          }
+          http(httpDefault)
+            .then(res => {
+              imageTile.getImage().src = URL.createObjectURL(res);
+            })
+            .catch(err => { })
+        },
+        wrapX: true,
+      })
+    });
+    mapWidget.baseLayer.set("layername", "baseLayer");
+    var point = LatLonTransform.gcj_encrypt(
+      parseFloat(mapWidget.mapCenterPoint[1]),
+      parseFloat(mapWidget.mapCenterPoint[0]));// 84坐标系转换成火星坐标系
+    var center = ol.proj.transform([point.lon, point.lat], "EPSG:4326",
+      "EPSG:3857");
 
-		// 创建地图对象
-		mapWidget.view = new ol.View({
-			minZoom: 3,
-			maxZoom: 20,
-			zoom: 16,
-			projection: "EPSG:3857",
-			center: center
-		});
-		mapWidget.map = new ol.Map({
-			controls: ol.control.defaults().extend([
-				// new ol.control.FullScreen(),
-				new ol.control.OverviewMap({}) // ,
-				// new ol.control.ZoomSlider({})
-			]),
-			target: mapId,
-			view: mapWidget.view,
-			logo: null
-		});
-		// 添加基础图层
-		mapWidget.map.addLayer(mapWidget.baseLayer);
-	} else {// PGIS 地图
-		var url = mapWidget.titeServePath + '/Maps/default_new';
-		var projectionExtent = ol.proj.get("EPSG:4326").getExtent();
-		var maxResolution = ol.extent.getWidth(projectionExtent) / 256;
+    // 创建地图对象
+    mapWidget.view = new ol.View({
+      minZoom: 3,
+      maxZoom: 20,
+      zoom: 16,
+      projection: "EPSG:3857",
+      center: center
+    });
+    mapWidget.map = new ol.Map({
+      controls: ol.control.defaults().extend([
+        // new ol.control.FullScreen(),
+        new ol.control.OverviewMap({}) // ,
+        // new ol.control.ZoomSlider({})
+      ]),
+      target: mapId,
+      view: mapWidget.view,
+      logo: null
+    });
+    // 添加基础图层
+    mapWidget.map.addLayer(mapWidget.baseLayer);
+  } else {// PGIS 地图
+    var url = mapWidget.titeServePath + '/Maps/default_new';
+    var projectionExtent = ol.proj.get("EPSG:4326").getExtent();
+    var maxResolution = ol.extent.getWidth(projectionExtent) / 256;
     var MaxZoom = 21;
-		var resolutions = new Array(MaxZoom);
-		var matrixIds = new Array(MaxZoom);
-		for (var i = 0; i < MaxZoom; i++) {
-			resolutions[i] = maxResolution / Math.pow(2, i);
-			matrixIds[i] = i;
-		}
-		mapWidget.baseLayer = new ol.layer.Tile({
-			source: new ol.source.WMTS({
-				name: mapWidget.layerName,
+    var resolutions = new Array(MaxZoom);
+    var matrixIds = new Array(MaxZoom);
+    for (var i = 0; i < MaxZoom; i++) {
+      resolutions[i] = maxResolution / Math.pow(2, i);
+      matrixIds[i] = i;
+    }
+    mapWidget.baseLayer = new ol.layer.Tile({
+      source: new ol.source.WMTS({
+        name: mapWidget.layerName,
         projection: "EPSG:4326",
-				tileGrid: new ol.tilegrid.WMTS({
-					origin: ol.extent.getTopLeft(projectionExtent),
-					resolutions: resolutions,
-					matrixIds: matrixIds
-				}),
+        tileGrid: new ol.tilegrid.WMTS({
+          origin: ol.extent.getTopLeft(projectionExtent),
+          resolutions: resolutions,
+          matrixIds: matrixIds
+        }),
         url: url,
-				format: 'image/png',
-				layer: mapWidget.layerName
-			})
-		});
-		mapWidget.baseLayer.set("layername", "baseLayer");
-		//创建地图对象
-		mapWidget.view = new ol.View({
-			minZoom: 3,
-			maxZoom: 20,
-			zoom: 16,
-			projection: "EPSG:4326",
-			center: mapWidget.mapCenterPoint,
-		});
-		mapWidget.map = new ol.Map({
-			controls: ol.control.defaults().extend([
-				new ol.control.FullScreen()
-			]),
-			target: mapId,
-			view: mapWidget.view,
-			logo: null
-		});
-		//添加基础图层
-		mapWidget.map.addLayer(mapWidget.baseLayer);
-	}
+        format: 'image/png',
+        layer: mapWidget.layerName
+      })
+    });
+    mapWidget.baseLayer.set("layername", "baseLayer");
+    //创建地图对象
+    mapWidget.view = new ol.View({
+      minZoom: 3,
+      maxZoom: 20,
+      zoom: 16,
+      projection: "EPSG:4326",
+      center: mapWidget.mapCenterPoint,
+    });
+    mapWidget.map = new ol.Map({
+      controls: ol.control.defaults().extend([
+        new ol.control.FullScreen()
+      ]),
+      target: mapId,
+      view: mapWidget.view,
+      logo: null
+    });
+    //添加基础图层
+    mapWidget.map.addLayer(mapWidget.baseLayer);
+  }
 ·clusterSource：
   -- Cluster概念聚合，在地图上查询结果通常以标记点的形式展现，但是如果标记点较多，不仅会大大增加客户端的渲染时间，让客户端变得很卡，而且会让人产生密集恐惧症，为了解决这一问题，我们需要一种手段能在用户有限的可视区域范围内，利用最小的区域展示出最全面的信息，而又不产生重叠覆盖。
   -- clusterSource为layer提供数据源

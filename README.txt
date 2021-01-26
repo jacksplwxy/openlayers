@@ -154,7 +154,15 @@
 ·设置要在地图上其他图层之上呈现的图层：layer.setMap(map)
 ·设置图层的显示与隐藏：layer.setVisible(false)
 ·ol.layer.Group：是一个用于将多个图层存储在一起的集合类
-
+·热力图：
+    var heatmapLayer = new ol.layer.Heatmap({
+      gradient: ['#8ea2fb', '#0ff', '#0f0', '#ff0', '#f00'],
+      source: new ol.source.Vector({
+        features: [new ol.Feature({geometry: new ol.geom.Point([lontitude,latitude])]
+      })
+    });
+    heatmapLayer.set("layername", "heatmap");
+    map.addLayer(heatmapLayer);
 
 *interaction（交互）：
 ·交互需要指定source参数来指定可以对哪些地图源进行交互，例如产生图形、图形编辑、数据捕获等
@@ -242,7 +250,6 @@
   -- movestart：地图开始移动时触发
   -- postrender：地图被渲染后触发
   -- drawend：划线完成
-  -- contextmenu：书写事件
   -- postcompose：地图渲染中。
   -- precompose：准备渲染，未渲染。
   -- postrender：渲染全部结束。
@@ -417,7 +424,11 @@
         projection:ol.proj.get('EPSG:4326'),
         source:new ol.source.Vector({features:new ol.Feature(...)})
       })
-      layer.setSource(clusterSource)
+      var clustersLayer = new ol.layer.Vector({});
+      clustersLayer.setSource(clusterSource)
+      clustersLayer.set("layername", "clusters");
+      map.addLayer(clustersLayer);
+  -- 样式设置/范围计算：https://www.jianshu.com/p/330b45f1c9ac?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation
 ·《OpenLayers教程八：多源数据加载之数据组织》：https://zhuanlan.zhihu.com/p/71882117
 
 
@@ -458,11 +469,13 @@
 
 
 
-*实践：
+*动画：
 ·动画实现的3种方式：
   -- 在div中使用CSS3动画，以overlay的形式添加
   -- 使用openlayers3自带的postcompose事件。这个事件在地图渲染时都会触发，而我们只要改变地图上的某个feature或者layer或者其他任何东西，就会触发重新渲染。因此我们在postcompose中改变feature的样式，改变样式后重新触发postcompose事件，一只循环下去，形成动画效果。
+  -- openlayers6采用postrender and vectorContext实现动画：https://openlayers.org/en/latest/examples/index.html?q=animation
   -- 使用js的requestAnimationFrame。requestAnimationFrame的方式与其他的js中方法相比的优势如下：1.经过浏览器优化，动画更流畅2.窗口没激活时，动画将停止，省计算资源3.更省电，尤其是对移动终端。
+
 
 
 *文档：
